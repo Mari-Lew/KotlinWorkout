@@ -101,9 +101,13 @@ class ExerciseActivity : AppCompatActivity() {
 
     fun setUpExerView()
     {
+        binding?.flRestView?.visibility = View.INVISIBLE
         binding?.progressBar?.visibility = View.INVISIBLE
-        binding?.tvTitle?.text = "Exercise Name"
+        binding?.tvTitle?.visibility = View.INVISIBLE
+
         binding?.flExerciseView?.visibility = View.VISIBLE
+        binding?.tvExercise?.visibility = View.VISIBLE
+        binding?.tvImage?.visibility = View.VISIBLE
 
 
         if(exerTimer != null)
@@ -111,6 +115,9 @@ class ExerciseActivity : AppCompatActivity() {
             exerTimer?.cancel()
             exerProgress = 0
         }
+
+        binding?.tvImage?.setImageResource(exerList!![currPosition].getImage())
+        binding?.tvExercise?.text = exerList!![currPosition].getName()
 
         setExerPB()
     }
@@ -131,8 +138,20 @@ class ExerciseActivity : AppCompatActivity() {
             }
 
             override fun onFinish() {
-               setRestPB()
+               if(currPosition < exerList?.size!! - 1)
+               {
+                   setUpRestView()
+               }
+                else{
+                    Toast.makeText(
+                        this@ExerciseActivity,
+                        "Congrats you're done",
+                        Toast.LENGTH_SHORT
+                    ).show()
+               }
             }
         }.start()
     }
+
+
 }
