@@ -16,6 +16,9 @@ class ExerciseActivity : AppCompatActivity() {
     var exerTimer: CountDownTimer? = null //how much time you want to rest
     var exerProgress = 0
 
+    private var exerList : ArrayList<ExerciseModel>? = null
+    private var currPosition = -1
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -28,6 +31,9 @@ class ExerciseActivity : AppCompatActivity() {
         {
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
         }
+
+        exerList = Constants.defaultExerList()
+
         binding?.exerToolbar?.setNavigationOnClickListener{
             onBackPressed()
         }
@@ -69,6 +75,7 @@ class ExerciseActivity : AppCompatActivity() {
 
             override fun onFinish() {
                 restProgress = 0;
+                currPosition++
                 setUpExerView()
             }
         }.start()
