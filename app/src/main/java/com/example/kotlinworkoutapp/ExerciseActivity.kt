@@ -1,13 +1,19 @@
 package com.example.kotlinworkoutapp
 
+import android.media.MediaPlayer
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.speech.tts.TextToSpeech
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import com.example.kotlinworkoutapp.databinding.ActivityExerciseBinding
+import java.util.*
+import kotlin.collections.ArrayList
 
-class ExerciseActivity : AppCompatActivity() {
+class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     var binding: ActivityExerciseBinding? = null
     var restTimer: CountDownTimer? = null //how much time you want to rest
@@ -18,6 +24,9 @@ class ExerciseActivity : AppCompatActivity() {
 
     private var exerList : ArrayList<ExerciseModel>? = null
     private var currPosition = -1
+
+    private var textToSpeech : TextToSpeech? = null
+    private var mediaPlayer: MediaPlayer? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,6 +42,8 @@ class ExerciseActivity : AppCompatActivity() {
         }
 
         exerList = Constants.defaultExerList()
+        
+        textToSpeech = TextToSpeech(this, this)
 
         binding?.exerToolbar?.setNavigationOnClickListener{
             onBackPressed()
@@ -44,11 +55,34 @@ class ExerciseActivity : AppCompatActivity() {
 
     fun setUpRestView()
     {
+        try {
+            val soundURI = Uri.parse(
+                "android.resource://com.example.kotlinworkoutapp/" + R.raw.press_start)
+            mediaPlayer = MediaPlayer.create(applicationContext, soundURI)
+            mediaPlayer?.isLooping = false
+            mediaPlayer?.start()
+
+        }catch(e:Exception)
+        {
+            e.printStackTrace()
+        }
+
+        binding?.flRestView?.visibility = View.VISIBLE
+        binding?.tvTitle?.visibility = View.VISIBLE
+        binding?.tvUpcomingLabel?.visibility = View.VISIBLE
+        binding?.upcomingExerName?.visibility = View.VISIBLE
+
+        binding?.tvExercise?.visibility = View.INVISIBLE
+        binding?.tvImage?.visibility = View.INVISIBLE
+
+
         if(restTimer != null)
         {
             restTimer?.cancel()
             restProgress = 0
         }
+
+        binding?.upcomingExerName?.text = exerList!![currPosition + 1].getName()
 
         setRestPB()
     }
@@ -96,6 +130,17 @@ class ExerciseActivity : AppCompatActivity() {
             exerProgress = 0
         }
 
+        if(textToSpeech != null)
+        {
+            textToSpeech!!.stop()
+            textToSpeech!!.shutdown()
+        }
+
+        if(mediaPlayer != null)
+        {
+            mediaPlayer!!.stop()
+        }
+
         binding = null
     }
 
@@ -104,6 +149,8 @@ class ExerciseActivity : AppCompatActivity() {
         binding?.flRestView?.visibility = View.INVISIBLE
         binding?.progressBar?.visibility = View.INVISIBLE
         binding?.tvTitle?.visibility = View.INVISIBLE
+        binding?.tvUpcomingLabel?.visibility = View.INVISIBLE
+        binding?.upcomingExerName?.visibility = View.INVISIBLE
 
         binding?.flExerciseView?.visibility = View.VISIBLE
         binding?.tvExercise?.visibility = View.VISIBLE
@@ -115,6 +162,8 @@ class ExerciseActivity : AppCompatActivity() {
             exerTimer?.cancel()
             exerProgress = 0
         }
+
+        speakText(exerList!![currPosition].getName())
 
         binding?.tvImage?.setImageResource(exerList!![currPosition].getImage())
         binding?.tvExercise?.text = exerList!![currPosition].getName()
@@ -151,6 +200,28 @@ class ExerciseActivity : AppCompatActivity() {
                }
             }
         }.start()
+    }
+
+    override fun onInit(status: Int) {
+        //check status
+        if(status == TextToSpeech.SUCCESS)
+        {
+            val result = textToSpeech?.setLanguage(Locale.US)
+
+            if(result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED)
+            {
+                Log.e("TTS", "The language is not supported")
+            }
+            else
+            {
+                Log.e("TTS","initialization failure")
+            }
+        }
+    }
+
+    private fun speakText(text: String)
+    {
+        textToSpeech!!.speak(text, TextToSpeech.QUEUE_FLUSH, null, "")
     }
 
 
