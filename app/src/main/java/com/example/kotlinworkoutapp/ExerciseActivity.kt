@@ -9,6 +9,7 @@ import android.speech.tts.TextToSpeech
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.kotlinworkoutapp.databinding.ActivityExerciseBinding
 import java.util.*
 import kotlin.collections.ArrayList
@@ -27,6 +28,8 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private var textToSpeech : TextToSpeech? = null
     private var mediaPlayer: MediaPlayer? = null
+
+    private var adapter : ExerciseAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,6 +54,16 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         // binding?.progressBar?.visibility = View.GONE
         setUpRestView()
+        setUpRV()
+    }
+
+    fun setUpRV()
+    {
+        binding?.rvExerStatus?.layoutManager =
+            LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+
+        adapter = ExerciseAdapter(exerList!!)
+        binding?.rvExerStatus?.adapter = adapter
     }
 
     fun setUpRestView()
