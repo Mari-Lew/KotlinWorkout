@@ -9,4 +9,8 @@
     <string name="are_you_sure">Are you sure?</string>
     <string name="yes">YES</string>
     <string name="no">NO</string>
+    <string name="weight_in_kg">WEIGHT (in kg)</string>
+    <string name="height_in_cm">HEIGHT (in cm)</string>
+    <string name="your_bmi">YOUR BMI</string>
+    <string name="calculate">CALCULATE</string>
 </resources>
